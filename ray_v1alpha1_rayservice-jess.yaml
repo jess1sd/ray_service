@@ -13,6 +13,25 @@ spec:
   # Only one of serveConfig and serveConfigV2 should be used.
   serveConfigV2: |
     applications:
+      - name: text_ml_app
+        import_path: text_ml.app
+        route_prefix: /text_ml
+        runtime_env:
+          working_dir: "https://github.com/jess1sd/rayService/archive/refs/heads/main.zip"
+          pip:
+            - transformers
+            - starlette
+            - tensorflow 
+        deployments:
+
+          - name: Translator
+            num_replicas: 1
+            ray_actor_options:
+              num_cpus: 0.1     
+          - name: Summarizer
+            num_replicas: 1
+            ray_actor_options:
+              num_cpus: 0.1                       
       - name: fruit_app
         import_path: fruit.deployment_graph
         route_prefix: /fruit
@@ -45,30 +64,6 @@ spec:
             num_replicas: 1
             ray_actor_options:
               num_cpus: 0.1
-      - name: math_app
-        import_path: conditional_dag.serve_dag
-        route_prefix: /calc
-        runtime_env:
-          working_dir: "https://github.com/ray-project/test_dag/archive/41d09119cbdf8450599f993f51318e9e27c59098.zip"
-        deployments:
-          - name: Adder
-            num_replicas: 1
-            user_config:
-              increment: 3
-            ray_actor_options:
-              num_cpus: 0.1
-          - name: Multiplier
-            num_replicas: 1
-            user_config:
-              factor: 5
-            ray_actor_options:
-              num_cpus: 0.1
-          - name: Router
-            num_replicas: 1
-          - name: create_order
-            num_replicas: 1
-          - name: DAGDriver
-            num_replicas: 1
   rayClusterConfig:
     rayVersion: '2.7.0' # should match the Ray version in the image of the containers
     ######################headGroupSpecs#################################
